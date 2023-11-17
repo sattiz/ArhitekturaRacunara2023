@@ -22,9 +22,9 @@ debug_x86-64:
 run:
 	./build/main.out $(ARGS)
 
-clear:
+clean:
 	rm -r build
 
-.SILENT: build_x86 build_x86-64 debug_x86-64 debug_x86 clear
-.PHONY: build_x86 build_x86-64 debug_x86-64 debug_x86 clear
+.SILENT: build_x86 build_x86-64 debug_x86-64 debug_x86 clean
+.PHONY: build_x86 build_x86-64 debug_x86-64 debug_x86 clean
 
