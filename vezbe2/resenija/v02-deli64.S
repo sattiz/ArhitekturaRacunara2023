@@ -2,8 +2,8 @@
 # Imenko Prezimić ra1234
 
 .section .data
-a:  .quad 12345678
-b:  .quad 912
+a:  .quad 0x12345678
+b:  .quad 0x912
 k:  .quad 0
 o:  .quad 0
 greska: .byte 0

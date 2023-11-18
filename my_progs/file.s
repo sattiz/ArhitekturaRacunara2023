@@ -1,36 +1,69 @@
 .section .data
-   # Пример переменной в памяти, инициализированной значением 0
-	argc:	.int 0
-	argv:	.quad 0
+hi_message: .asciz "Enter your name, surname:"
+        hm_len = . - hi_message
 
-	Stack_step = 8
+.section .bss
+buffer: .space 50
+        BUFSIZE = . - buffer
 
 .section .text
-	.globl _start
+    .globl _start
 
 _start:
+    movl %esp, %ebp
 
-	movq %rsp, %rbp
-	movl (%rsp), %eax
-	movl %eax, argc
-	add  $Stack_step, %rsp
-	movq %rsp, argv
-	movq %rbp, %rsp
+    ##write(1, hm_len, hi_message)
+    movl $4, %eax
+    movl $1, %ebx
+    movl $hi_message, %ecx
+    movl $hm_len, %edx
+    int $0x80
 
-    # # Завершение программы
-    mov $60, %rax           # Код системного вызова для exit
-    xor %rdi, %rdi          # Код возврата 0
-    syscall
+    ## read(0, rd_len, buffer)
+    movl $3, %eax
+    movl $0, %ebx
+    movl $buffer, %ecx
+    movl $BUFSIZE, %edx
+    int $0x80
 
+    ## get buflen
+    push $buffer
+    call strlen
+    popl %edx
+    movl %ebp, %esp
 
+    ## write(1, buflen, buffer)
+    movl $4, %eax
+    movl $1, %ebx
+    movl $buffer, %ecx
+    int $0x80
+
+    movl $1, %eax
+    xorl %ebx, %ebx
+    int $0x80
+
+## >> arg1 = ptr(str)
+## << len(str)
 strlen:
-	push %rax
+## prolog
+    pushl %esp
+    movl %esp, %ebp
+    pushl %eax
+    pushl %ecx
 
-	xor %rcx, %rcx		# nullify counter
-	start_loop:
-		cmpb	$0, (%rax)	# compare if symbol == '\0'
-		je 		end_loop	# end loop
-		inc		%rax		# else go to next symbol
-		inc		%rcx		# increase counter
-		jmp		start_loop
-	end_loop: ret
+    xor %ecx, %ecx
+    movl 8(%ebp), %eax
+strlen_loop:
+    cmpl $0, (%eax)
+    je strlen_endloop
+    incl %ecx
+    incl %eax
+    jmp strlen_loop
+strlen_endloop:
+
+    movl %ecx, 8(%esp)
+## epilogue
+    popl %ecx
+    popl %eax
+    popl %ebp
+    ret
