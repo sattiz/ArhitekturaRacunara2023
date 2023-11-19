@@ -1,37 +1,31 @@
+# 6. Напишите ассемблерную программу, вычисляющую факториал числа n,использование переменных
+# а. Задача идентична задаче 4 из первого семестра занятий; единственное отличие состоит в том, что
+# число n, как и результат, следует помещать в переменные (отмеченные ячейки памяти), а не в
+# регистры; числа можно помещать в переменные прямо при инициализации (в части
+# кода .section .data), их не обязательно использоватьдвигатьсяинструкция
 
 .section .data
-a: .quad 0x1200000000
-b: .quad 0x120000000
-rem: .quad 0
-res: .quad 0
-err: .byte 0
+
+n: .long 15
+r: .long 0
 
 .section .text
     .globl _start
+
 _start:
-    movl a, %eax
-    movl a+4, %ebx
-    cmpl $0, b
-    jne div
-    cmpl $0, b+4
-    je div_by_zero
-div:
-    cmpl b+4, %ebx
-    ja dsub
-    jl exit
-    cmpl b, %eax
-    jl exit
-dsub:
-    subl b, %eax
-    sbbl b+4, %ebx
-    addl $1, res
-    adcl $0, res+4
-    jmp div
-div_by_zero:
-    incb err
+    movl $1, %eax
+    movl n, %ecx
+
+fact_loop:
+    cmpl $1, n
+    je exit
+multiply:
+    movl n, %ecx
+mult_loop:
+end_multiply_loop:
+
 exit:
-    movl %eax, rem
-    movl %ebx, rem+4
+    movl %eax, r
     movl $1, %eax
     movl $0, %ebx
-    int  $0x80
+    int $0x80
