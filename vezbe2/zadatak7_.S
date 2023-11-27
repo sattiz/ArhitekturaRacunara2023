@@ -1,4 +1,3 @@
-
 .section .data
 a: .quad 0x1200000000
 b: .quad 0x120000000
