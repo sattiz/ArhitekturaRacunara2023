@@ -1,6 +1,23 @@
+.section .data
+
+arr: .long 0, 1, 2, 3, 4, 5, 6, 7, 8, 9
+    arr_len = . - arr
+
 .section .text
 
-.globl InvertBits
+.globl _start
+
+_start:
+    movl %esp, %ebp
+
+    pushl $arr_len
+    pushl $arr
+    call InvertBits
+    movl %ebp, %esp
+
+    movl $1, %eax
+    movl $0, %ebx
+    int $0x80
 
 InvertBits:
 ## prologue

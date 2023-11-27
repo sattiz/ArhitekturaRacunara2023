@@ -1,9 +1,26 @@
+.section .data
+
+array: .int 0x0, 0x1, 0x555
+    arrlen = . - array
+
     inv_masq = 0b10
     check_masq = 0b1
     arr_step = 4
 
 .section .text
-    .globl BitSwitch
+    .globl _start
+
+_start:
+    movl %esp, %ebp
+
+    pushl $arrlen
+    pushl $array
+    call BitSwitch
+    movl %ebp, %esp
+
+    movl %eax, %ebx
+    movl $1, %eax
+    int $0x80
 
 BitSwitch:
 ## prologue
@@ -64,4 +81,3 @@ BitSwitch:
     popl %esi
     popl %ebp ## restore stack frame
     ret
-
