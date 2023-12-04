@@ -49,7 +49,7 @@ BitSwitch:
         movl $inv_masq, %ecx ## load reverse masq into ecx
         movl $check_masq, %edi ## load check masq into edi
         BitSwitch_invert_number_loop:
-            cmpl $31, %ebx ## go throw every bit from 0 to 31
+            cmpl $31, %ebx ## go through every bit from 0 to 31
             je BitSwitch_invert_number_loop_end ## if end of number
 
             testl %edi, %esi ## if current bit is not 0

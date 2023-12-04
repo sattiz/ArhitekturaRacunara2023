@@ -125,10 +125,8 @@ check_if_digit:
     movb (%eax), %al ## get *ptr(arg1)
 
     cmpb $'0', %al
-    je is_digit
     jl is_not_digit
     cmpb $'9', %al
-    je is_digit
     jg is_not_digit
 is_digit:
     movl $1, 8(%ebp)

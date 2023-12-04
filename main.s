@@ -1,95 +1,107 @@
-#autor: Vladimir Morozkon SV85/2023
-
 .section .data
 ulaz_str: .ascii "Unesite string: \0"
-ulazLen = .-ulaz_str
-izlaz_str: .ascii "Rezultujuci string: \0"
-izlazLen = .-izlaz_str
-stroka: .space 50
-
+unos_max = 50
+unos: .fill unos_max, 1, 42
+len_ulaz_str: .long 17
+min: .byte 0
+max: .byte 0
 
 .section .text
-.global main
+
+.globl main
+
 main:
-	##syscall stdout
-	movl $4, %eax
-	movl $1, %ebx
-	leal ulaz_str, %ecx
-	movl $ulazLen, %edx
-	int $0x80
 
-	## syscall stdin
-	movl $3, %eax
-	movl $0, %ebx
-	leal stroka, %ecx
-	movl $50, %edx
-	int $0x80
+    ## Ask user to type some string
 
-	## save len stdin in esi and edi
-	movl %eax, %esi
-	movl %eax, %edi
-	leal stroka, %eax
+    movl $4, %eax
+    movl $1, %ebx
+    movl $ulaz_str, %ecx
+    movl len_ulaz_str, %edx
+    int $0x80
 
-findPoint:
-	## check end of sting
-	cmpl $0, %esi
-	je krajString
+    ## Read what user has types
 
-	movb (%eax), %cl
+    movl $3, %eax
+    movl $0, %ebx
+    movl $unos, %ecx
+    movl unos_max, %edx
+    int $0x80
 
-	##is '.' in cl?
-	cmpb $'.', %cl
-	je findFirstLowCase
-	jmp findPoint_step
+    ## Move length of input to %esi and put the adress to the first elem of the input string to %ebx
 
-findPoint_step:
-	## go to next
-	decl %esi
-	incl %eax
-	jmp findPoint
+    movl %eax, %esi
+    movl $unos, %ebx
+    xorl %eax, %eax ## nullify %eax
+
+    find_num_loop:
+
+        cmpl $0, %esi
+        je exit
+
+        movb (%ebx), %cl
+
+        cmpb $'0', %cl
+        jl find_num_step
+
+        cmpb $'9', %cl
+        jg find_num_step
+
+        jmp find_min_max_endloop
+
+    find_num_step:
+
+        decl %esi
+        incl %ebx
+        jmp find_num_loop
+
+    find_min_max_endloop:
+
+        movb %cl, min
+        movb %cl, max
+        jmp find_min_max_loop
+
+    find_min_max_loop:
+
+        cmpl $0, %esi
+        je exit
+
+        cmpb $'0', %cl
+        jl find_num_step
+
+        cmpb $'9', %cl
+        jg find_num_step
+
+        cmpb min, %cl
+        je update_min
+
+        cmpb max, %cl
+        jg update_max
+
+        jmp find_min_max_step
+
+        update_min:
+
+        movb %cl, min
+        jmp find_min_max_step
+
+        update_max:
+
+        movb %cl, max
+        jmp find_min_max_step
 
 
-##findPoint_end
+    find_min_max_step:
 
-findFirstLowCase:
-	cmpl $0, %esi
-	je krajString
+        decl %esi
+        incl %ebx
+        movb (%ebx), %cl
 
-	movb (%eax), %cl
+exit:
 
-	cmpb $'a', %cl
-	jl findFirstLowCase_step
-	cmpb $'z', %cl
-	jg findFirstLowCase_step
+    xor %ebx, %ebx
+    movb min, %bl
+    addb max, %bl
 
-	subb $32, (%eax) ## tut vopros, vicitaem iz cl ili iz eax
-	jmp findPoint_step
-
-findFirstLowCase_step:
-	decl %esi
-	incl %eax
-	jmp findFirstLowCase
-
-
-##findFirstLowCase_end
-
-krajString:
-
-	##syscall stdout string
-	movl $4, %eax
-	movl $1, %ebx
-	leal izlaz_str, %ecx
-	movl $izlazLen, %edx
-	int $0x80
-
-	##syscall stdout string changed
-	movl $4, %eax
-	movl $1, %ebx
-	leal stroka, %ecx
-	movl %edi, %edx
-	int $0x80
-
-kraj:
-	movl $1, %eax
-	xor %ebx, %ebx
-	int $0x80
+    movl $1, %eax
+    int $0x80
